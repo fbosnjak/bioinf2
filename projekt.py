@@ -1,8 +1,9 @@
 import pandas as pd
 from pgmpy.models import BayesianNetwork
 from pgmpy.estimators import MaximumLikelihoodEstimator
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, roc_curve, auc
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Step 1: Load the data
 data_file = "data.xls"
@@ -85,5 +86,28 @@ def testNetwork(featureName):
 for feature in nodes:
     testNetwork(feature)
 
+
+# Step 6: Compute ROC Curve
+true_labels, predicted_labels = testNetwork("Effect")
+
+# Convert -1,1 labels to 0,1 for ROC
+true_labels = (true_labels + 1) // 2
+predicted_labels = (predicted_labels + 1) // 2
+
+# Compute ROC curve and AUC
+fpr, tpr, _ = roc_curve(true_labels, predicted_labels)
+roc_auc = auc(fpr, tpr)
+
+# Step 7: Plot ROC Curve
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='gray', linestyle='--')  # Diagonal line
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='lower right')
+plt.show()
 
 
